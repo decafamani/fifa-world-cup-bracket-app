@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Cup 2026 — Prediction Pool</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --grass:#1a4a2e;--grass2:#22613c;--grass3:#2d7a4f;
+  --gold:#d4a017;--gold2:#f0c040;
+  --cream:#f5f0e8;--cream2:#ede7d9;--cream3:#e2dace;
+  --ink:#1a1a14;--ink2:#4a4a3a;--ink3:#8a8a7a;
+  --red:#c0392b;--red-bg:#fdf0ee;
+  --green-bg:#eef7f0;--green-text:#1a5c2a;
+  --amber-bg:#fdf5e0;--amber-text:#7a4f00;
+  --blue:#1a3a6a;--blue-bg:#eef2fa;
+  --r:10px;--rs:6px;
+}
+body{font-family:'Syne',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh}
+
+/* HEADER */
+.site-hdr{background:var(--grass);padding:1.25rem 1.5rem;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.hdr-icon{width:44px;height:44px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.hdr-text h1{font-size:20px;font-weight:800;color:var(--cream);letter-spacing:-.02em;line-height:1.1}
+.hdr-text p{font-size:11px;color:rgba(245,240,232,.55);margin-top:2px;font-family:'DM Mono',monospace}
+.hdr-spacer{flex:1}
+.sync-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:30px;padding:5px 14px}
+.sync-pill span{font-size:11px;color:rgba(245,240,232,.75);font-family:'DM Mono',monospace;white-space:nowrap}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#888;flex-shrink:0;transition:background .3s}
+.sync-dot.ok{background:#4caf50;box-shadow:0 0 0 3px rgba(76,175,80,.2)}
+.sync-dot.err{background:var(--red)}
+.me-pill{display:flex;align-items:center;gap:7px;background:var(--gold);border-radius:30px;padding:5px 13px;font-size:11px;font-weight:700;color:var(--ink);font-family:'Syne',sans-serif}
+
+/* NAV */
+.nav-bar{background:var(--grass2);display:flex;overflow-x:auto;padding:0 1.5rem}
+.nav-btn{padding:11px 16px;font-size:11px;font-weight:700;font-family:'Syne',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:rgba(245,240,232,.5);background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;transition:color .15s}
+.nav-btn:hover{color:rgba(245,240,232,.85)}
+.nav-btn.active{color:var(--gold2);border-bottom-color:var(--gold)}
+
+.main{max-width:980px;margin:0 auto;padding:1.5rem 1rem 4rem}
+
+/* ROUND TABS */
+.round-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem}
+.rtab{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;font-family:'DM Mono',monospace;border:1px solid var(--cream3);background:white;cursor:pointer;color:var(--ink3);transition:all .15s;display:flex;align-items:center;gap:6px}
+.rtab:hover{border-color:var(--grass);color:var(--grass)}
+.rtab.active{background:var(--grass);color:var(--gold2);border-color:var(--grass)}
+.rtab .pts-badge{font-size:9px;opacity:.75}
+.rtab .lock-ico{font-size:10px;opacity:.8}
+
+/* STAT TILES */
+.stat-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:1.25rem}
+.stat-tile{background:var(--grass);border-radius:var(--r);padding:12px 14px;color:var(--cream)}
+.stat-tile .val{font-size:24px;font-weight:800;letter-spacing:-.02em;color:var(--gold2);line-height:1}
+.stat-tile .lbl{font-size:9px;font-family:'DM Mono',monospace;color:rgba(245,240,232,.5);margin-top:3px;text-transform:uppercase;letter-spacing:.05em}
+
+/* POT BAR */
+.pot-bar{background:var(--grass);color:var(--gold2);border-radius:var(--r);padding:12px 16px;margin-bottom:1.25rem;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.pot-val{font-size:26px;font-weight:800;letter-spacing:-.02em}
+.pot-lbl{font-size:9px;font-family:'DM Mono',monospace;opacity:.6;text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.pot-note{font-size:11px;font-family:'DM Mono',monospace;opacity:.7;margin-left:auto}
+
+/* LEADERBOARD */
+.lb-card{background:white;border-radius:var(--r);border:1px solid var(--cream3);overflow:hidden}
+.lb-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--cream2);transition:background .1s}
+.lb-row:last-child{border-bottom:none}
+.lb-row:hover{background:var(--cream)}
+.lb-row.top1{background:linear-gradient(90deg,#fffbea 0%,white 60%)}
+.lb-pos{font-size:11px;font-family:'DM Mono',monospace;color:var(--ink3);width:22px;text-align:right;flex-shrink:0}
+.lb-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.lb-info{flex:1;min-width:0}
+.lb-name{font-size:13px;font-weight:600}
+.lb-pts-col{text-align:right;flex-shrink:0}
+.lb-pts{font-size:18px;font-weight:800;color:var(--grass)}
+.lb-pts-lbl{font-size:9px;font-family:'DM Mono',monospace;color:var(--ink3)}
+.lb-status{font-size:16px;flex-shrink:0;width:20px;text-align:center}
+.round-pips{display:flex;gap:3px;margin-top:3px}
+.pip{min-width:16px;height:16px;border-radius:3px;font-size:8px;font-family:'DM Mono',monospace;display:flex;align-items:center;justify-content:center;font-weight:700;padding:0 2px}
+.pip-hit{background:var(--green-bg);color:var(--green-text)}
+.pip-miss{background:var(--red-bg);color:var(--red)}
+.pip-pending{background:var(--cream2);color:var(--ink3)}
+
+/* PANELS */
+.admin-layout{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:640px){.admin-layout{grid-template-columns:1fr}}
+.panel{background:white;border-radius:var(--r);border:1px solid var(--cream3);overflow:hidden}
+.panel-hdr{background:var(--grass);color:var(--cream);padding:9px 14px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-family:'DM Mono',monospace}
+.panel-body{padding:12px 14px}
+.field-lbl{display:block;font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.field-input{width:100%;padding:8px 10px;border:1px solid var(--cream3);border-radius:var(--rs);font-size:13px;font-family:'Syne',sans-serif;background:var(--cream);color:var(--ink);appearance:none}
+.field-input:focus{outline:2px solid var(--grass);outline-offset:1px}
+.field-row{margin-bottom:10px}
+.wager-presets{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:5px}
+.wp{padding:3px 10px;border-radius:20px;border:1px solid var(--cream3);background:var(--cream);color:var(--ink2);font-size:11px;font-family:'DM Mono',monospace;cursor:pointer;transition:all .12s}
+.wp:hover{border-color:var(--grass);color:var(--grass)}
+.wp.active{background:var(--grass);color:var(--gold2);border-color:var(--grass)}
+.btn-green{background:var(--grass);color:var(--cream);border:none;border-radius:var(--rs);padding:9px 16px;font-size:12px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;width:100%;transition:background .15s}
+.btn-green:hover{background:var(--grass2)}
+.btn-green:disabled{opacity:.5;cursor:not-allowed}
+.btn-ghost{background:transparent;color:var(--ink2);border:1px solid var(--cream3);border-radius:var(--rs);padding:6px 12px;font-size:11px;font-weight:600;font-family:'Syne',sans-serif;cursor:pointer;transition:background .15s}
+.btn-ghost:hover{background:var(--cream)}
+.entry-row{display:flex;align-items:center;gap:8px;padding:7px 14px;font-size:12px;border-bottom:1px solid var(--cream2)}
+.entry-row:last-child{border-bottom:none}
+.entry-name{flex:1;font-weight:600}
+.entry-wager{font-family:'DM Mono',monospace;color:var(--grass);font-size:11px;font-weight:700}
+.entry-del{background:none;border:none;color:var(--ink3);cursor:pointer;font-size:15px;padding:1px 4px;border-radius:3px;transition:all .1s}
+.entry-del:hover{background:var(--red-bg);color:var(--red)}
+.entries-scroll{max-height:320px;overflow-y:auto}
+
+/* PICKS */
+.picks-header{display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap}
+.picks-title{font-size:15px;font-weight:700}
+.picks-sub{font-size:11px;font-family:'DM Mono',monospace;color:var(--ink3)}
+.round-info-bar{background:var(--blue-bg);border-left:3px solid var(--blue);border-radius:0 var(--rs) var(--rs) 0;padding:8px 12px;margin-bottom:1rem;font-size:12px;color:var(--blue);font-family:'DM Mono',monospace}
+.lock-banner{background:var(--amber-bg);border:1px solid #f0c040;border-radius:var(--rs);padding:8px 12px;font-size:12px;color:var(--amber-text);font-family:'DM Mono',monospace;margin-bottom:12px}
+
+.team-pick-btn{display:flex;align-items:center;gap:5px;padding:4px 8px;border:1px solid var(--cream3);border-radius:var(--rs);font-size:11px;cursor:pointer;background:var(--cream);color:var(--ink2);font-family:'Syne',sans-serif;transition:all .12s;white-space:nowrap}
+.team-pick-btn:hover{border-color:var(--grass);color:var(--grass)}
+.team-pick-btn.selected{background:var(--grass);color:var(--gold2);border-color:var(--grass);font-weight:600}
+.team-pick-btn.correct{background:var(--green-bg);border-color:var(--green-text);color:var(--green-text)}
+.team-pick-btn.wrong{background:var(--red-bg);border-color:var(--red);color:var(--red);opacity:.6}
+.team-pick-btn:disabled{cursor:not-allowed}
+.pick-flag{font-size:13px}
+
+/* GROUP PICK CARDS */
+.gs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px}
+.gs-card{background:white;border-radius:var(--r);border:1px solid var(--cream3);overflow:hidden}
+.gs-card.complete{border-color:var(--grass3)}
+.gs-hdr{background:var(--grass);color:var(--gold2);padding:6px 12px;font-size:10px;font-weight:700;font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center}
+.gs-hdr .gs-count{margin-left:auto;opacity:.7}
+.gs-body{padding:8px}
+.gs-team{display:flex;align-items:center;gap:7px;width:100%;padding:6px 8px;border:1px solid transparent;border-radius:var(--rs);background:none;font-size:12px;font-family:'Syne',sans-serif;cursor:pointer;color:var(--ink2);transition:all .12s;text-align:left;margin-bottom:2px}
+.gs-team:hover{background:var(--cream)}
+.gs-team.selected{background:var(--grass);color:var(--gold2);font-weight:600}
+.gs-team.correct{background:var(--green-bg);color:var(--green-text);font-weight:600}
+.gs-team.wrong{background:var(--red-bg);color:var(--red);opacity:.65}
+.gs-team:disabled{cursor:not-allowed;opacity:.7}
+.gs-team .gs-rank{margin-left:auto;font-size:9px;font-family:'DM Mono',monospace;opacity:.6}
+
+/* round extra stake */
+.round-wager-section{border-top:1px solid var(--cream3);padding-top:10px;margin-top:14px}
+.round-wager-label{font-size:10px;font-weight:700;font-family:'DM Mono',monospace;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.round-wager-presets{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px}
+.rwp{padding:3px 10px;border-radius:20px;border:1px solid var(--cream3);background:var(--cream);color:var(--ink2);font-size:11px;font-family:'DM Mono',monospace;cursor:pointer;transition:all .12s}
+.rwp:hover{border-color:var(--grass);color:var(--grass)}
+.rwp.active{background:var(--grass);color:var(--gold2);border-color:var(--grass)}
+.running-total{display:flex;align-items:center;gap:8px;background:var(--cream2);border-radius:var(--rs);padding:7px 10px;margin-top:6px;font-size:11px;font-family:'DM Mono',monospace}
+.running-total-val{font-size:15px;font-weight:700;color:var(--grass);margin-left:auto}
+
+/* BRACKET */
+.bracket-wrap{overflow-x:auto;padding-bottom:8px}
+.bracket{display:flex;min-width:860px}
+.r-col{flex:1;display:flex;flex-direction:column;min-width:130px}
+.r-hdr{font-size:9px;font-weight:700;font-family:'DM Mono',monospace;color:var(--ink3);text-align:center;padding:0 4px 6px;text-transform:uppercase;letter-spacing:.07em}
+.r-date{font-size:9px;color:var(--ink3);text-align:center;font-family:'DM Mono',monospace;margin-bottom:8px}
+.r-matches{flex:1;display:flex;flex-direction:column}
+.m-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;padding:3px 4px}
+.m-box{background:white;border:1px solid var(--cream3);border-radius:var(--rs);overflow:hidden}
+.m-team{display:flex;align-items:center;gap:5px;padding:5px 7px;font-size:11px;color:var(--ink3);border-bottom:1px solid var(--cream2);font-family:'DM Mono',monospace}
+.m-team:last-child{border-bottom:none}
+.m-team.winner{background:var(--grass);color:var(--gold2);font-weight:500}
+.m-venue{display:flex;align-items:center;gap:4px;padding:3px 7px;background:var(--cream2);font-size:9px;color:var(--ink3);font-family:'DM Mono',monospace;border-top:1px solid var(--cream3)}
+.m-vdot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.champ-col{flex:0 0 110px;display:flex;align-items:center;justify-content:center;padding:8px}
+.champ-box{text-align:center}
+.champ-trophy{font-size:36px;display:block;margin-bottom:6px}
+.champ-flag{font-size:24px;display:block;margin-bottom:4px}
+.champ-name{font-size:12px;font-weight:700;color:var(--grass)}
+.champ-sub{font-size:9px;font-family:'DM Mono',monospace;color:var(--ink3);margin-top:2px}
+.adv-chips{display:flex;flex-wrap:wrap;gap:4px;padding:4px}
+.adv-chip{font-size:10px;font-family:'DM Mono',monospace;background:var(--green-bg);color:var(--green-text);border-radius:12px;padding:2px 8px;display:flex;align-items:center;gap:4px}
+
+/* RESULTS */
+.res-round-card{background:white;border-radius:var(--r);border:1px solid var(--cream3);overflow:hidden;margin-bottom:12px}
+.res-hint{font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace;padding:8px 14px;border-bottom:1px solid var(--cream2)}
+.res-chip-wrap{display:flex;flex-wrap:wrap;gap:5px;padding:12px 14px}
+
+/* MISC */
+.msg{padding:8px 12px;border-radius:var(--rs);font-size:11px;margin-top:8px;font-family:'DM Mono',monospace}
+.msg-ok{background:var(--green-bg);color:var(--green-text)}
+.msg-warn{background:var(--amber-bg);color:var(--amber-text)}
+.msg-err{background:var(--red-bg);color:var(--red)}
+.empty{text-align:center;padding:2rem;color:var(--ink3);font-size:12px;font-family:'DM Mono',monospace}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--cream3);border-top-color:var(--grass);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:5px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.upd-txt{font-size:10px;font-family:'DM Mono',monospace;color:var(--ink3)}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.section-lbl{font-size:10px;font-weight:700;font-family:'DM Mono',monospace;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.save-row{display:flex;align-items:center;gap:10px;margin-top:14px}
+
+/* JOIN OVERLAY */
+.join-card{max-width:430px;margin:2rem auto;background:white;border-radius:var(--r);border:1px solid var(--cream3);overflow:hidden}
+.join-hero{background:var(--grass);padding:22px 20px;text-align:center}
+.join-hero .ball{font-size:34px;display:block;margin-bottom:8px}
+.join-hero h2{color:var(--cream);font-size:18px;font-weight:800;letter-spacing:-.02em}
+.join-hero p{color:rgba(245,240,232,.6);font-size:11px;font-family:'DM Mono',monospace;margin-top:4px}
+</style>
+</head>
+<body>
+
+<header class="site-hdr">
+  <div class="hdr-icon">🏆</div>
+  <div class="hdr-text">
+    <h1>World Cup 2026 — prediction pool</h1>
+    <p>GROUP STAGE + KNOCKOUT PICKS · JUN 11 – JUL 19</p>
+  </div>
+  <div class="hdr-spacer"></div>
+  <div class="me-pill" id="me-pill" style="display:none">⚽ <span id="me-name"></span></div>
+  <div class="sync-pill"><div class="sync-dot" id="sync-dot"></div><span id="sync-txt">Connecting…</span></div>
+</header>
+
+<nav class="nav-bar">
+  <button class="nav-btn active" onclick="gotoTab('leaderboard',this)">Leaderboard</button>
+  <button class="nav-btn" onclick="gotoTab('picks',this)">My picks</button>
+  <button class="nav-btn" onclick="gotoTab('participants',this)">Players</button>
+  <button class="nav-btn" onclick="gotoTab('bracket',this)">Bracket</button>
+  <button class="nav-btn" onclick="gotoTab('results',this)">Results</button>
+  <button class="nav-btn" onclick="gotoTab('groups',this)">Groups</button>
+</nav>
+
+<main class="main">
+
+  <!-- LEADERBOARD -->
+  <div id="tab-leaderboard">
+    <div id="pot-bar" class="pot-bar" style="display:none">
+      <div><div class="pot-val" id="pot-total">$0</div><div class="pot-lbl">Total pot</div></div>
+      <div><div class="pot-val" id="pot-count">0</div><div class="pot-lbl">Players</div></div>
+      <div class="pot-note" id="pot-note"></div>
+    </div>
+    <div class="stat-strip" id="stat-strip"></div>
+    <div class="section-lbl">Standings</div>
+    <div class="lb-card" id="lb-body"><div class="empty"><span class="spinner"></span>Loading the pool…</div></div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn-ghost" onclick="refreshAll()">↻ Refresh</button>
+      <span class="upd-txt" id="lb-upd"></span>
+    </div>
+  </div>
+
+  <!-- MY PICKS -->
+  <div id="tab-picks" style="display:none">
+    <div id="join-section"></div>
+    <div id="picks-section" style="display:none">
+      <div class="picks-header">
+        <div>
+          <div class="picks-title">Your picks, round by round</div>
+          <div class="picks-sub" id="picks-sub">Picks lock when each round kicks off</div>
+        </div>
+      </div>
+      <div class="round-tabs" id="round-tabs"></div>
+      <div id="picks-content"></div>
+      <div class="save-row">
+        <button class="btn-green" style="width:auto;padding:9px 24px" onclick="saveMyPicks()">Save my picks</button>
+        <span class="upd-txt" id="picks-saved-msg"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAYERS -->
+  <div id="tab-participants" style="display:none">
+    <div class="admin-layout">
+      <div>
+        <div class="panel">
+          <div class="panel-hdr">Pool members (<span id="p-count">0</span>)</div>
+          <div class="panel-body" style="padding:0">
+            <div class="entries-scroll" id="p-list"><div class="empty">No one has joined yet.</div></div>
+          </div>
+        </div>
+        <div style="margin-top:10px" class="row">
+          <button class="btn-ghost" onclick="exportCSV()">Export CSV</button>
+          <button class="btn-ghost" onclick="toggleAdmin()" id="admin-toggle-btn">🔐 Organizer tools</button>
+        </div>
+      </div>
+      <div>
+        <div class="panel" id="admin-panel" style="display:none">
+          <div class="panel-hdr">Organizer · add someone manually</div>
+          <div class="panel-body">
+            <div class="field-row">
+              <label class="field-lbl">Name</label>
+              <input class="field-input" type="text" id="p-name" placeholder="e.g. Alex Smith">
+            </div>
+            <div class="field-row">
+              <label class="field-lbl">Entry fee ($) — optional</label>
+              <div class="wager-presets">
+                <button class="wp" onclick="setW(5)">$5</button>
+                <button class="wp" onclick="setW(10)">$10</button>
+                <button class="wp" onclick="setW(20)">$20</button>
+                <button class="wp" onclick="setW(50)">$50</button>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span style="font-size:13px;color:var(--ink2)">$</span>
+                <input class="field-input" type="number" id="p-wager" placeholder="custom" min="0" step="1" style="flex:1">
+              </div>
+            </div>
+            <button class="btn-green" onclick="addParticipant()">Add to pool</button>
+            <div id="p-msg"></div>
+          </div>
+        </div>
+        <div class="panel" id="admin-locked-note">
+          <div class="panel-hdr">How joining works</div>
+          <div class="panel-body" style="font-size:12px;color:var(--ink2);line-height:1.55">
+            Send people this page's link. Each person taps <strong>My picks</strong>, joins with their name, and enters their own predictions. Everything saves to the shared pool automatically — no spreadsheets, no screenshots.
+            <div class="msg msg-warn" style="margin-top:10px">Heads up: names, entry fees, and picks are visible to everyone with the link.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BRACKET -->
+  <div id="tab-bracket" style="display:none">
+    <div style="margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="font-size:11px;color:var(--ink3);font-family:'DM Mono',monospace" id="bracket-msg">Pre-tournament bracket · winners fill in as results are entered</span>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace"><div style="width:7px;height:7px;border-radius:50%;background:#2563a8"></div>USA</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace"><div style="width:7px;height:7px;border-radius:50%;background:#1a7a4a"></div>Mexico</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace"><div style="width:7px;height:7px;border-radius:50%;background:#c0392b"></div>Canada</div>
+    </div>
+    <div class="bracket-wrap"><div class="bracket" id="bracket-board"></div></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="tab-results" style="display:none">
+    <div class="picks-header">
+      <div>
+        <div class="picks-title">Tournament results</div>
+        <div class="picks-sub">What's been decided so far — this is what the leaderboard scores against</div>
+      </div>
+      <div style="flex:1"></div>
+      <button class="btn-ghost" onclick="toggleResultsEdit()" id="res-edit-btn">🔐 Organizer: enter results</button>
+    </div>
+    <div id="res-admin-bar" style="display:none;margin-bottom:12px">
+      <div class="panel" id="ai-sync-panel">
+        <div class="panel-hdr">AI results sync</div>
+        <div class="panel-body">
+          <div style="font-size:12px;color:var(--ink2);margin-bottom:8px;line-height:1.5">Pulls completed World Cup results from the web via Claude and fills in group qualifiers + knockout winners below. Review before trusting — you can always correct any team by tapping it.</div>
+          <button class="btn-green" style="width:auto;padding:8px 18px" id="ai-sync-btn" onclick="aiSync()">⚡ Sync results from the web</button>
+          <span class="upd-txt" id="ai-sync-msg" style="margin-left:8px"></span>
+        </div>
+      </div>
+    </div>
+    <div id="results-content"></div>
+  </div>
+
+  <!-- GROUPS -->
+  <div id="tab-groups" style="display:none">
+    <div style="font-size:11px;color:var(--ink3);font-family:'DM Mono',monospace;margin-bottom:12px">
+      Group stage: Jun 11–27 · Top 2 from each group + best 8 third-place teams advance to Round of 32
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px" id="groups-grid"></div>
+  </div>
+
+</main>
+
+<script>
+const TEAMS_DATA=[
+  ['A',['🇲🇽','Mexico',15],['🇰🇷','S. Korea',25],['🇿🇦','S. Africa',60],['🇨🇿','Czechia',41]],
+  ['B',['🇨🇦','Canada',30],['🇨🇭','Switzerland',19],['🇶🇦','Qatar',55],['🇧🇦','Bosnia',65]],
+  ['C',['🇧🇷','Brazil',6],['🇲🇦','Morocco',8],['🏴󠁧󠁢󠁳󠁣󠁴󠁿','Scotland',43],['🇭🇹','Haiti',83]],
+  ['D',['🇺🇸','USA',16],['🇦🇺','Australia',27],['🇵🇾','Paraguay',40],['🇹🇷','Türkiye',22]],
+  ['E',['🇩🇪','Germany',10],['🇨🇮','Ivory Coast',34],['🇪🇨','Ecuador',23],['🇨🇼','Curaçao',82]],
+  ['F',['🇳🇱','Netherlands',7],['🇯🇵','Japan',18],['🇸🇪','Sweden',38],['🇹🇳','Tunisia',44]],
+  ['G',['🇧🇪','Belgium',9],['🇮🇷','Iran',21],['🇳🇿','New Zealand',85],['🇪🇬','Egypt',29]],
+  ['H',['🇪🇸','Spain',2],['🇸🇦','Saudi Arabia',61],['🇺🇾','Uruguay',17],['🇨🇻','Cape Verde',69]],
+  ['I',['🇫🇷','France',1],['🇸🇳','Senegal',14],['🇮🇶','Iraq',57],['🇳🇴','Norway',31]],
+  ['J',['🇦🇷','Argentina',3],['🇩🇿','Algeria',28],['🇦🇹','Austria',24],['🇯🇴','Jordan',63]],
+  ['K',['🇵🇹','Portugal',5],['🇨🇴','Colombia',13],['🇺🇿','Uzbekistan',50],['🇨🇩','DR Congo',46]],
+  ['L',['🇬🇧','England',4],['🇬🇭','Ghana',74],['🇵🇦','Panama',33],['🇭🇷','Croatia',11]],
+];
+const ALL_TEAMS=TEAMS_DATA.flatMap(([g,...ts])=>ts);
+const FLAG_MAP=Object.fromEntries(ALL_TEAMS.map(([f,n])=>[n,f]));
+const GROUP_OF=Object.fromEntries(TEAMS_DATA.flatMap(([g,...ts])=>ts.map(([f,n])=>[n,g])));
+
+const ROUNDS=[
+  {key:'GS',  label:'Group stage',  short:'GS', pts:1, dates:'Jun 11–27',     pickLimit:24, lockAt:'2026-06-11T16:00:00-04:00', type:'groups',
+    blurb:'Pick the 2 teams you think finish top of each group · 1pt per correct team · 24 picks total'},
+  {key:'R32', label:'Round of 32',  short:'R32',pts:1, dates:'Jun 28–Jul 3',  pickLimit:16, lockAt:'2026-06-28T12:00:00-04:00', type:'teams'},
+  {key:'R16', label:'Round of 16',  short:'R16',pts:2, dates:'Jul 4–7',       pickLimit:8,  lockAt:'2026-07-04T12:00:00-04:00', type:'teams'},
+  {key:'QF',  label:'Quarterfinals',short:'QF', pts:4, dates:'Jul 9–11',      pickLimit:4,  lockAt:'2026-07-09T12:00:00-04:00', type:'teams'},
+  {key:'SF',  label:'Semifinals',   short:'SF', pts:8, dates:'Jul 14–15',     pickLimit:2,  lockAt:'2026-07-14T12:00:00-04:00', type:'teams'},
+  {key:'F',   label:'Final',        short:'F',  pts:16,dates:'Jul 19',        pickLimit:1,  lockAt:'2026-07-19T12:00:00-04:00', type:'teams'},
+];
+const KO_KEYS=['R32','R16','QF','SF','F'];
+
+const BLANK_R32=[
+  {t1:['🇨🇦','Canada'],      t2:['🇧🇦','Bosnia'],        venue:'Los Angeles',   cc:'#2563a8',flag:'🇺🇸',date:'Jun 28'},
+  {t1:['🇩🇪','Germany'],     t2:['?','Best 3rd'],         venue:'Boston',        cc:'#2563a8',flag:'🇺🇸',date:'Jun 29'},
+  {t1:['🇳🇱','Netherlands'], t2:['🇲🇦','Morocco'],        venue:'Monterrey',     cc:'#1a7a4a',flag:'🇲🇽',date:'Jun 29'},
+  {t1:['🇧🇷','Brazil'],      t2:['🏴󠁧󠁢󠁳󠁣󠁴󠁿','Scotland'],      venue:'Houston',       cc:'#2563a8',flag:'🇺🇸',date:'Jun 29'},
+  {t1:['🇫🇷','France'],      t2:['?','Best 3rd'],         venue:'New York/NJ',   cc:'#2563a8',flag:'🇺🇸',date:'Jun 30'},
+  {t1:['🇩🇪','Germany'],     t2:['🇹🇷','Türkiye'],         venue:'Dallas',        cc:'#2563a8',flag:'🇺🇸',date:'Jun 30'},
+  {t1:['🇲🇽','Mexico'],      t2:['?','Best 3rd'],         venue:'Mexico City',   cc:'#1a7a4a',flag:'🇲🇽',date:'Jun 30'},
+  {t1:['🇺🇸','USA'],         t2:['?','Best 3rd'],         venue:'Atlanta',       cc:'#2563a8',flag:'🇺🇸',date:'Jul 1'},
+  {t1:['🇧🇪','Belgium'],     t2:['🇪🇬','Egypt'],           venue:'San Francisco', cc:'#2563a8',flag:'🇺🇸',date:'Jul 1'},
+  {t1:['🇪🇸','Spain'],       t2:['🇸🇦','Saudi Arabia'],    venue:'Seattle',       cc:'#2563a8',flag:'🇺🇸',date:'Jul 1'},
+  {t1:['🇦🇷','Argentina'],   t2:['🇩🇿','Algeria'],         venue:'Toronto',       cc:'#c0392b',flag:'🇨🇦',date:'Jul 2'},
+  {t1:['🇵🇹','Portugal'],    t2:['?','Best 3rd'],         venue:'Los Angeles',   cc:'#2563a8',flag:'🇺🇸',date:'Jul 2'},
+  {t1:['🇨🇦','Canada'],      t2:['🇶🇦','Qatar'],           venue:'Vancouver',     cc:'#c0392b',flag:'🇨🇦',date:'Jul 2'},
+  {t1:['🇬🇧','England'],     t2:['🇬🇭','Ghana'],           venue:'Miami',         cc:'#2563a8',flag:'🇺🇸',date:'Jul 3'},
+  {t1:['?','Group K winner'],t2:['?','Best 3rd'],         venue:'Kansas City',   cc:'#2563a8',flag:'🇺🇸',date:'Jul 3'},
+  {t1:['🇺🇸','USA'],         t2:['🇦🇺','Australia'],       venue:'Dallas',        cc:'#2563a8',flag:'🇺🇸',date:'Jul 3'},
+];
+const BLANK_VENUES={
+  R16:[
+    {venue:'Houston',cc:'#2563a8',flag:'🇺🇸'},{venue:'Philadelphia',cc:'#2563a8',flag:'🇺🇸'},
+    {venue:'New York/NJ',cc:'#2563a8',flag:'🇺🇸'},{venue:'Mexico City',cc:'#1a7a4a',flag:'🇲🇽'},
+    {venue:'Dallas',cc:'#2563a8',flag:'🇺🇸'},{venue:'Seattle',cc:'#2563a8',flag:'🇺🇸'},
+    {venue:'Toronto',cc:'#c0392b',flag:'🇨🇦'},{venue:'Los Angeles',cc:'#2563a8',flag:'🇺🇸'},
+  ],
+  QF:[
+    {venue:'Houston',cc:'#2563a8',flag:'🇺🇸'},{venue:'Dallas',cc:'#2563a8',flag:'🇺🇸'},
+    {venue:'Los Angeles',cc:'#2563a8',flag:'🇺🇸'},{venue:'Boston',cc:'#2563a8',flag:'🇺🇸'},
+  ],
+  SF:[{venue:'Atlanta',cc:'#2563a8',flag:'🇺🇸'},{venue:'New York/NJ',cc:'#2563a8',flag:'🇺🇸'}],
+  F: [{venue:'New York/NJ',cc:'#2563a8',flag:'🇺🇸'}],
+};
+const BLANK_ROUNDS=[
+  {label:'Round of 32',date:'Jun 28–Jul 3',slots:BLANK_R32},
+  {label:'Round of 16',date:'Jul 4–7',     slots:BLANK_VENUES.R16},
+  {label:'Quarterfinals',date:'Jul 9–11',  slots:BLANK_VENUES.QF},
+  {label:'Semifinals',date:'Jul 14–15',    slots:BLANK_VENUES.SF},
+  {label:'Final',date:'Jul 19',            slots:BLANK_VENUES.F},
+];
+
+const AVATARS=[['#1a4a2e','#d4a017'],['#1a3a5c','#7ec8e3'],['#5c1a1a','#f0a0a0'],['#3a1a5c','#c8a0f0'],['#1a4a40','#a0f0d4'],['#5c3a1a','#f0c890'],['#1a1a4a','#a0c8f0'],['#4a1a3a','#f0a0d4']];
+function avStyle(n){let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))%AVATARS.length;return `background:${AVATARS[h][0]};color:${AVATARS[h][1]}`}
+
+/* ===================== SHARED STATE ===================== */
+const POOL_KEY='wc26-pool-v4';
+let pool={participants:[],picks:{},results:{GS:{},GS3:[],R32:[],R16:[],QF:[],SF:[],F:[]},adminPin:null,lockOverrides:{}};
+let myId=null;            // this device's participant id (personal storage)
+let adminMode=false;
+let activeRound='GS';
+
+/* ---- backend: Claude artifact storage OR JSONBin (self-hosted, no login) ---- */
+const IN_ARTIFACT=(typeof window!=='undefined')&&window.storage&&typeof window.storage.get==='function';
+function hashParams(){return new URLSearchParams((location.hash||'').replace(/^#/,''));}
+/* Built-in pool config — set by the organizer. Hash (#bin=...&key=...) overrides if present. */
+const BUILTIN={bin:'',key:''}; // optional: bake your own JSONBin config here for a clean shareable URL
+function remoteCfg(){const h=hashParams();return{bin:h.get('bin')||BUILTIN.bin||'',key:h.get('key')||BUILTIN.key||''};}
+function backendReady(){return IN_ARTIFACT||(remoteCfg().bin&&remoteCfg().key);}
+
+async function backendGet(){
+  if(IN_ARTIFACT){
+    try{const r=await window.storage.get(POOL_KEY,true);return r&&r.value?r.value:null;}
+    catch(e){return null;}
+  }
+  const{bin,key}=remoteCfg();
+  const res=await fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`,{headers:{'X-Master-Key':key}});
+  if(!res.ok)throw new Error('read '+res.status);
+  const data=await res.json();
+  const rec=data&&data.record;
+  return rec&&rec.participants!==undefined?JSON.stringify(rec):null;
+}
+async function backendSet(jsonStr){
+  if(IN_ARTIFACT){await window.storage.set(POOL_KEY,jsonStr,true);return;}
+  const{bin,key}=remoteCfg();
+  const res=await fetch(`https://api.jsonbin.io/v3/b/${bin}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':key},body:jsonStr});
+  if(!res.ok)throw new Error('write '+res.status);
+}
+async function meGet(){
+  if(IN_ARTIFACT){try{const r=await window.storage.get('wc26-my-id',false);return(r&&r.value)||null;}catch(e){return null;}}
+  try{return localStorage.getItem('wc26-my-id');}catch(e){return null;}
+}
+async function meSet(v){
+  if(IN_ARTIFACT){try{await window.storage.set('wc26-my-id',v,false);}catch(e){}}
+  else{try{localStorage.setItem('wc26-my-id',v);}catch(e){}}
+}
+
+function setSync(state,txt){
+  const d=document.getElementById('sync-dot');d.className='sync-dot'+(state?' '+state:'');
+  document.getElementById('sync-txt').textContent=txt;
+}
+
+async function loadPool(){
+  try{
+    const value=await backendGet();
+    if(value){
+      const p=JSON.parse(value);
+      pool={participants:[],picks:{},results:{GS:{},GS3:[],R32:[],R16:[],QF:[],SF:[],F:[]},adminPin:null,lockOverrides:{},...p};
+      pool.results={GS:{},GS3:[],R32:[],R16:[],QF:[],SF:[],F:[],...(p.results||{})};
+      if(!Array.isArray(pool.results.GS3))pool.results.GS3=[];
+      pool.lockOverrides=p.lockOverrides||{};
+    }
+    setSync('ok','Shared pool · live');
+  }catch(e){
+    setSync('err','Connection issue — tap Refresh');
+  }
+}
+async function savePool(){
+  try{
+    // re-read first so we don't clobber someone else's just-saved picks
+    try{
+      const value=await backendGet();
+      if(value){
+        const remote=JSON.parse(value);
+        // merge: keep remote participants/picks we don't know about
+        (remote.participants||[]).forEach(rp=>{
+          if(!pool.participants.find(p=>p.id===rp.id))pool.participants.push(rp);
+        });
+        Object.keys(remote.picks||{}).forEach(pid=>{
+          if(pid!==myId&&!adminMode)pool.picks[pid]={...(remote.picks[pid]||{}),...(pool.picks[pid]||{})};
+          if(!pool.picks[pid])pool.picks[pid]=remote.picks[pid];
+        });
+        if(remote.adminPin&&!pool.adminPin)pool.adminPin=remote.adminPin;
+      }
+    }catch(e){}
+    await backendSet(JSON.stringify(pool));
+    setSync('ok','Saved · '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+  }catch(e){
+    setSync('err','Save failed — retry');
+  }
+}
+async function loadMe(){
+  const v=await meGet();
+  if(v)myId=v;
+  // validate: if the participant was deleted, forget identity
+  if(myId&&!pool.participants.find(p=>p.id===myId))myId=null;
+}
+async function saveMe(){
+  await meSet(myId);
+}
+
+async function refreshAll(){
+  await loadPool();
+  await loadMe();
+  renderAll();
+}
+function renderAll(){
+  renderMePill();renderJoinOrPicks();renderRoundTabs();renderPicksContent();
+  renderParticipants();renderLeaderboard();renderBracket();renderResults();
+}
+
+/* ===================== LOCKS ===================== */
+function isLocked(roundKey){
+  const ov=(pool.lockOverrides||{})[roundKey];
+  if(ov==='locked')return true;
+  if(ov==='unlocked')return false;
+  const r=ROUNDS.find(x=>x.key===roundKey);
+  return Date.now()>=new Date(r.lockAt).getTime();
+}
+function lockSource(roundKey){
+  const ov=(pool.lockOverrides||{})[roundKey];
+  if(ov==='locked'||ov==='unlocked')return 'organizer';
+  return 'auto';
+}
+
+/* ===================== JOIN FLOW ===================== */
+function renderMePill(){
+  const me=pool.participants.find(p=>p.id===myId);
+  const pill=document.getElementById('me-pill');
+  if(me){pill.style.display='flex';document.getElementById('me-name').textContent=me.name.split(' ')[0];}
+  else pill.style.display='none';
+}
+
+function renderJoinOrPicks(){
+  const me=pool.participants.find(p=>p.id===myId);
+  document.getElementById('join-section').innerHTML=me?'':`
+    <div class="join-card">
+      <div class="join-hero">
+        <span class="ball">⚽</span>
+        <h2>Join the pool</h2>
+        <p>48 TEAMS · 6 ROUNDS OF PICKS · BRAGGING RIGHTS</p>
+      </div>
+      <div class="panel-body">
+        <div class="field-row">
+          <label class="field-lbl">Your name</label>
+          <input class="field-input" type="text" id="join-name" placeholder="e.g. Alex Smith">
+        </div>
+        <div class="field-row">
+          <label class="field-lbl">Entry fee ($) — optional, honor system</label>
+          <div class="wager-presets">
+            <button class="wp" onclick="setJW(5)">$5</button>
+            <button class="wp" onclick="setJW(10)">$10</button>
+            <button class="wp" onclick="setJW(20)">$20</button>
+            <button class="wp" onclick="setJW(50)">$50</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:13px;color:var(--ink2)">$</span>
+            <input class="field-input" type="number" id="join-wager" placeholder="custom" min="0" step="1" style="flex:1">
+          </div>
+        </div>
+        <button class="btn-green" onclick="joinPool()">Join &amp; start picking</button>
+        <div id="join-msg"></div>
+        <div style="font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace;margin-top:10px;line-height:1.5">
+          Already joined on another device? Tap your name in the Players tab to claim it here.
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('picks-section').style.display=me?'':'none';
+}
+function setJW(n){
+  document.getElementById('join-wager').value=n;
+  document.querySelectorAll('#join-section .wp').forEach(b=>b.classList.toggle('active',parseInt(b.textContent.replace('$',''))===n));
+}
+async function joinPool(){
+  const name=document.getElementById('join-name').value.trim();
+  const wager=parseFloat(document.getElementById('join-wager').value)||0;
+  const msg=document.getElementById('join-msg');
+  if(!name){msg.innerHTML='<div class="msg msg-warn">Enter your name first.</div>';return;}
+  await loadPool();
+  const exists=pool.participants.find(p=>p.name.toLowerCase()===name.toLowerCase());
+  if(exists){
+    myId=exists.id;
+    msg.innerHTML=`<div class="msg msg-ok">Welcome back, ${exists.name} — this device is now yours.</div>`;
+  }else{
+    myId='p'+Date.now()+Math.floor(Math.random()*999);
+    pool.participants.push({id:myId,name,wager});
+    await savePool();
+    msg.innerHTML=`<div class="msg msg-ok">You're in${wager?' · $'+wager:''}! Make your group stage picks below.</div>`;
+  }
+  await saveMe();
+  renderAll();
+}
+async function claimIdentity(pid){
+  const p=pool.participants.find(x=>x.id===pid);
+  if(!p)return;
+  if(p.id===myId)return;
+  const ok=await uiAsk({title:'Claim this name',body:`Is "${p.name}" you? This device will be linked to that entry so you can edit those picks.`,okText:'Yes, that\'s me'});
+  if(!ok)return;
+  myId=pid;await saveMe();renderAll();
+  gotoTabByName('picks');
+}
+
+/* ===================== ROUND TABS + PICKS ===================== */
+function renderRoundTabs(){
+  document.getElementById('round-tabs').innerHTML=ROUNDS.map(r=>{
+    const locked=isLocked(r.key);
+    return `<button class="rtab${r.key===activeRound?' active':''}" onclick="switchRound('${r.key}',this)">
+      ${locked?'<span class="lock-ico">🔒</span>':''}${r.label}<span class="pts-badge">${r.pts}pt</span>
+    </button>`;
+  }).join('');
+}
+function switchRound(key,el){
+  activeRound=key;
+  document.querySelectorAll('.rtab').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderPicksContent();
+}
+
+function myPicksFor(roundKey){
+  if(!pool.picks[myId])pool.picks[myId]={};
+  if(roundKey==='GS'){
+    if(!pool.picks[myId].GS)pool.picks[myId].GS={};
+    return pool.picks[myId].GS;
+  }
+  if(!pool.picks[myId][roundKey])pool.picks[myId][roundKey]=[];
+  return pool.picks[myId][roundKey];
+}
+
+function renderPicksContent(){
+  const el=document.getElementById('picks-content');
+  const me=pool.participants.find(p=>p.id===myId);
+  if(!me){el.innerHTML='';return;}
+  const round=ROUNDS.find(r=>r.key===activeRound);
+  const locked=isLocked(activeRound);
+
+  let html=`<div class="round-info-bar">
+    ${round.label} · ${round.dates} · <strong>${round.pts} pt</strong> per correct pick${round.type==='groups'?'':` · pick exactly <strong>${round.pickLimit}</strong> teams to advance`}
+    ${round.blurb?`<br>${round.blurb}`:''}
+  </div>`;
+  if(locked){
+    html+=`<div class="lock-banner">🔒 ${lockSource(activeRound)==='organizer'?`The organizer has locked ${round.label} picks.`:`${round.label} has kicked off — picks are locked.`} Results show below as they come in.</div>`;
+  }else if(lockSource(activeRound)==='organizer'){
+    html+=`<div class="lock-banner" style="background:var(--green-bg);border-color:var(--grass3);color:var(--green-text)">🔓 The organizer has opened ${round.label} picks — get them in!</div>`;
+  }
+
+  if(round.type==='groups')html+=renderGroupPicks(locked);
+  else html+=renderTeamPicks(round,locked);
+
+  html+=renderRoundStake(round,locked);
+  el.innerHTML=html;
+}
+
+function renderGroupPicks(locked){
+  const gsPicks=myPicksFor('GS');
+  const gsResults=pool.results.GS||{};
+  return `<div class="gs-grid">`+TEAMS_DATA.map(([g,...teams])=>{
+    const sel=gsPicks[g]||[];
+    const actual=gsResults[g]||[];
+    const done=actual.length===2;
+    return `<div class="gs-card${sel.length===2?' complete':''}">
+      <div class="gs-hdr">Group ${g}<span class="gs-count">${sel.length}/2</span></div>
+      <div class="gs-body">
+        ${teams.map(([f,n,rank])=>{
+          const isSel=sel.includes(n);
+          let cls='gs-team';
+          if(done){
+            if(isSel&&actual.includes(n))cls+=' correct';
+            else if(isSel)cls+=' wrong';
+          }else if(isSel)cls+=' selected';
+          const atLimit=sel.length>=2&&!isSel;
+          const dis=locked||atLimit;
+          return `<button class="${cls}" ${dis?'disabled':''} ${locked?'':`onclick="toggleGroupPick('${g}','${n.replace(/'/g,"\\'")}')"`}>
+            <span class="pick-flag">${f}</span>${n}<span class="gs-rank">#${rank}</span>
+          </button>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('')+`</div>`;
+}
+
+function toggleGroupPick(g,team){
+  const gs=myPicksFor('GS');
+  if(!gs[g])gs[g]=[];
+  const idx=gs[g].indexOf(team);
+  if(idx>=0)gs[g].splice(idx,1);
+  else{if(gs[g].length>=2)return;gs[g].push(team);}
+  renderPicksContent();
+}
+
+/* which teams are still alive entering a given round, or null if not yet knowable */
+function aliveFor(roundKey){
+  if(roundKey==='R32'){
+    const gs=pool.results.GS||{};const g3=pool.results.GS3||[];
+    const doneGroups=Object.keys(gs).filter(g=>(gs[g]||[]).length===2);
+    if(doneGroups.length===12&&g3.length===8)return[...Object.values(gs).flat(),...g3];
+    return null;
+  }
+  const prev={R16:'R32',QF:'R16',SF:'QF',F:'SF'}[roundKey];
+  if(!prev)return null;
+  const prevR=ROUNDS.find(x=>x.key===prev);
+  const w=pool.results[prev]||[];
+  return w.length>=prevR.pickLimit?w:null;
+}
+
+function renderTeamPicks(round,locked){
+  const myPicks=myPicksFor(round.key);
+  const winners=pool.results[round.key]||[];
+  const roundDone=winners.length>=round.pickLimit;
+  const alive=aliveFor(round.key);
+  let teams=[...ALL_TEAMS].sort((a,b)=>a[1].localeCompare(b[1]));
+  if(alive)teams=teams.filter(([f,n])=>alive.includes(n)||myPicks.includes(n));
+  const limitColor=myPicks.length===round.pickLimit?'color:var(--green-text);font-weight:700':myPicks.length>round.pickLimit?'color:var(--red)':'';
+  const btns=teams.map(([f,n])=>{
+    const isSel=myPicks.includes(n);
+    const isOut=alive&&!alive.includes(n);
+    let cls='team-pick-btn';
+    if(roundDone||(locked&&winners.length)){
+      if(isSel&&winners.includes(n))cls+=' correct';
+      else if(isSel&&roundDone)cls+=' wrong';
+      else if(isSel)cls+=' selected';
+    }else if(isSel&&isOut)cls+=' wrong';
+    else if(isSel)cls+=' selected';
+    const atLimit=myPicks.length>=round.pickLimit&&!isSel;
+    const dis=locked||atLimit;
+    return `<button class="${cls}" ${dis?'disabled':''} ${atLimit&&!locked?'style="opacity:.3"':''} ${locked?'style="cursor:default;opacity:.75"':''} ${dis?'':`onclick="toggleTeamPick('${round.key}','${n.replace(/'/g,"\\'")}')"`} ${isOut&&!locked?'title="Eliminated — tap to remove"':''}>
+      <span class="pick-flag">${f}</span>${n}${isOut?' ✕':''}
+    </button>`;
+  }).join('');
+  const outPicked=alive?myPicks.filter(n=>!alive.includes(n)):[];
+  return `<div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--ink3);margin-bottom:8px">
+      <span style="${limitColor}">${myPicks.length}/${round.pickLimit}</span> picked · ${alive?`showing the ${alive.length} teams still alive — choose who survives this round`:'all 48 teams shown — the list narrows to surviving teams once earlier results are in'}
+    </div>
+    ${outPicked.length&&!locked?`<div class="lock-banner" style="margin-bottom:8px">⚠️ ${outPicked.join(', ')} ${outPicked.length>1?'have':'has'} been eliminated — tap to swap ${outPicked.length>1?'them':'it'} for a live team.</div>`:''}
+    <div style="display:flex;flex-wrap:wrap;gap:5px">${btns}</div>`;
+}
+
+function toggleTeamPick(roundKey,team){
+  const round=ROUNDS.find(r=>r.key===roundKey);
+  const arr=myPicksFor(roundKey);
+  const idx=arr.indexOf(team);
+  if(idx>=0)arr.splice(idx,1);
+  else{if(arr.length>=round.pickLimit)return;arr.push(team);}
+  renderPicksContent();
+}
+
+function renderRoundStake(round,locked){
+  const w=pool.picks[myId]?.[round.key+'_wager']||0;
+  const me=pool.participants.find(p=>p.id===myId);
+  const totalSpend=(me.wager||0)+Object.keys(pool.picks[myId]||{}).filter(k=>k.endsWith('_wager')).reduce((s,k)=>s+(pool.picks[myId][k]||0),0);
+  if(locked&&!w)return '';
+  return `<div class="round-wager-section">
+    <div class="round-wager-label">Extra stake this round — optional</div>
+    <div class="round-wager-presets">
+      ${[5,10,20,50].map(a=>`<button class="rwp${w===a?' active':''}" ${locked?'disabled':''} onclick="setRoundWager('${round.key}',${a})">+$${a}</button>`).join('')}
+      <button class="rwp${w>0&&![5,10,20,50].includes(w)?' active':''}" ${locked?'disabled':''} onclick="promptCustomWager('${round.key}')">custom</button>
+    </div>
+    <div class="running-total">
+      <span style="color:var(--ink3)">Your total</span>
+      <span style="color:var(--ink3);margin-left:4px">$${me.wager||0} entry${w?` + $${w} ${round.short}`:''}</span>
+      <span class="running-total-val">= $${totalSpend}</span>
+    </div>
+  </div>`;
+}
+function setRoundWager(roundKey,amount){
+  if(!pool.picks[myId])pool.picks[myId]={};
+  const cur=pool.picks[myId][roundKey+'_wager']||0;
+  pool.picks[myId][roundKey+'_wager']=cur===amount?0:amount;
+  renderPicksContent();
+}
+async function promptCustomWager(roundKey){
+  const cur=pool.picks[myId]?.[roundKey+'_wager']||0;
+  const val=await uiAsk({title:'Custom extra stake',body:'Enter the extra amount ($) you\'re adding for this round.',input:true,number:true,value:cur||'',okText:'Set stake'});
+  if(val===null)return;
+  if(!pool.picks[myId])pool.picks[myId]={};
+  pool.picks[myId][roundKey+'_wager']=Math.max(0,parseFloat(val)||0);
+  renderPicksContent();
+}
+
+async function saveMyPicks(){
+  const msg=document.getElementById('picks-saved-msg');
+  msg.innerHTML='<span class="spinner"></span>Saving…';
+  await savePool();
+  renderLeaderboard();
+  msg.textContent='Saved to the shared pool ✓';
+  setTimeout(()=>msg.textContent='',3000);
+}
+
+/* ===================== SCORING ===================== */
+function calcPoints(pid){
+  let total=0;const breakdown={};
+  ROUNDS.forEach(r=>{
+    if(r.key==='GS'){
+      const gsRes=pool.results.GS||{};
+      const groupsDone=Object.keys(gsRes).filter(g=>(gsRes[g]||[]).length===2);
+      if(!groupsDone.length){breakdown.GS=null;return;}
+      const gsPicks=pool.picks[pid]?.GS||{};
+      let pts=0;
+      groupsDone.forEach(g=>{(gsPicks[g]||[]).forEach(t=>{if(gsRes[g].includes(t))pts+=r.pts;});});
+      breakdown.GS=pts;total+=pts;
+    }else{
+      const winners=pool.results[r.key]||[];
+      if(!winners.length){breakdown[r.key]=null;return;}
+      const myP=pool.picks[pid]?.[r.key]||[];
+      let pts=0;
+      myP.forEach(t=>{if(winners.includes(t))pts+=r.pts;});
+      breakdown[r.key]=pts;total+=pts;
+    }
+  });
+  return{total,breakdown};
+}
+
+/* ===================== LEADERBOARD ===================== */
+function renderLeaderboard(){
+  const withPts=pool.participants.map(p=>({...p,...calcPoints(p.id)}));
+  withPts.sort((a,b)=>b.total-a.total);
+
+  const spendOf=p=>{
+    const rw=Object.keys(pool.picks[p.id]||{}).filter(k=>k.endsWith('_wager')).reduce((s,k)=>s+(pool.picks[p.id][k]||0),0);
+    return (p.wager||0)+rw;
+  };
+  const totalPot=pool.participants.reduce((s,p)=>s+spendOf(p),0);
+  const anyWager=totalPot>0;
+  if(anyWager&&pool.participants.length){
+    document.getElementById('pot-bar').style.display='flex';
+    document.getElementById('pot-total').textContent='$'+totalPot.toLocaleString();
+    document.getElementById('pot-count').textContent=pool.participants.length;
+    document.getElementById('pot-note').textContent=withPts[0]?.total>0?`${withPts[0].name} leads · $${totalPot} pot`:`avg $${Math.round(totalPot/pool.participants.length)} per entry`;
+  }else document.getElementById('pot-bar').style.display='none';
+
+  const groupsScored=Object.keys(pool.results.GS||{}).filter(g=>(pool.results.GS[g]||[]).length===2).length;
+  const roundsPlayed=(groupsScored===12?1:0)+KO_KEYS.filter(k=>(pool.results[k]||[]).length>0).length;
+  document.getElementById('stat-strip').innerHTML=`
+    <div class="stat-tile"><div class="val">${pool.participants.length}</div><div class="lbl">Players</div></div>
+    <div class="stat-tile"><div class="val">${groupsScored}/12</div><div class="lbl">Groups decided</div></div>
+    <div class="stat-tile"><div class="val">${roundsPlayed}/6</div><div class="lbl">Rounds scored</div></div>
+    <div class="stat-tile"><div class="val">${withPts[0]?.total||0}</div><div class="lbl">Top score</div></div>
+    ${anyWager?`<div class="stat-tile"><div class="val" style="font-size:20px">$${totalPot.toLocaleString()}</div><div class="lbl">Total pot</div></div>`:''}
+  `;
+
+  if(!pool.participants.length){document.getElementById('lb-body').innerHTML='<div class="empty">No players yet — send the link around! People join under My picks.</div>';return;}
+
+  const medals=['🥇','🥈','🥉'];
+  document.getElementById('lb-body').innerHTML=withPts.map((p,i)=>{
+    const initials=p.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const medal=i<3&&p.total>0?medals[i]:'';
+    const totalSpend=spendOf(p);
+    const wagerTag=totalSpend>0?`<span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--grass);background:var(--green-bg);padding:2px 6px;border-radius:10px;margin-left:5px">$${totalSpend}</span>`:'';
+    const youTag=p.id===myId?`<span style="font-size:9px;font-family:'DM Mono',monospace;color:var(--gold);background:var(--grass);padding:2px 6px;border-radius:10px;margin-left:5px">YOU</span>`:'';
+    const pips=ROUNDS.map(r=>{
+      const bd=p.breakdown[r.key];
+      if(bd===null||bd===undefined)return `<div class="pip pip-pending" title="${r.label}: not scored yet">${r.short}</div>`;
+      return `<div class="pip ${bd>0?'pip-hit':'pip-miss'}" title="${r.label}: ${bd}pts">${bd}</div>`;
+    }).join('');
+    return `<div class="lb-row${i===0?' top1':''}">
+      <div class="lb-pos">${medal||i+1}</div>
+      <div class="lb-avatar" style="${avStyle(p.name)}">${initials}</div>
+      <div class="lb-info">
+        <div class="lb-name">${p.name}${youTag}${wagerTag}</div>
+        <div class="round-pips">${pips}</div>
+      </div>
+      <div class="lb-pts-col"><div class="lb-pts">${p.total}</div><div class="lb-pts-lbl">pts</div></div>
+      <div class="lb-status">${medal}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('lb-upd').textContent='Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+
+/* ===================== PLAYERS ===================== */
+function renderParticipants(){
+  document.getElementById('p-count').textContent=pool.participants.length;
+  const el=document.getElementById('p-list');
+  if(!pool.participants.length){el.innerHTML='<div class="empty">No one has joined yet.</div>';return;}
+  el.innerHTML=pool.participants.map(p=>{
+    const gsCount=Object.values(pool.picks[p.id]?.GS||{}).flat().length;
+    return `<div class="entry-row">
+      <span class="entry-name" style="cursor:pointer" onclick="claimIdentity('${p.id}')" title="Tap to claim this name on this device">${p.name}${p.id===myId?' · you':''}</span>
+      <span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--ink3)">${gsCount}/24 GS picks</span>
+      <span class="entry-wager">${p.wager?'$'+p.wager:'—'}</span>
+      ${adminMode?`<button class="entry-del" onclick="removeParticipant('${p.id}')">×</button>`:''}
+    </div>`;
+  }).join('');
+}
+function setW(n){
+  document.getElementById('p-wager').value=n;
+  document.querySelectorAll('#admin-panel .wp').forEach(b=>b.classList.toggle('active',parseInt(b.textContent.replace('$',''))===n));
+}
+async function addParticipant(){
+  const name=document.getElementById('p-name').value.trim();
+  const wager=parseFloat(document.getElementById('p-wager').value)||0;
+  const msg=document.getElementById('p-msg');
+  if(!name){msg.innerHTML='<div class="msg msg-warn">Enter a name.</div>';return;}
+  const exists=pool.participants.find(p=>p.name.toLowerCase()===name.toLowerCase());
+  if(exists){exists.wager=wager;msg.innerHTML=`<div class="msg msg-ok">Updated ${name}.</div>`;}
+  else{pool.participants.push({id:'p'+Date.now()+Math.floor(Math.random()*999),name,wager});msg.innerHTML=`<div class="msg msg-ok">Added ${name}${wager?' · $'+wager:''}.</div>`;}
+  await savePool();
+  document.getElementById('p-name').value='';document.getElementById('p-wager').value='';
+  document.querySelectorAll('#admin-panel .wp').forEach(b=>b.classList.remove('active'));
+  renderParticipants();renderLeaderboard();
+  setTimeout(()=>msg.innerHTML='',3000);
+}
+async function removeParticipant(id){
+  const p=pool.participants.find(x=>x.id===id);
+  const ok=await uiAsk({title:'Remove player',body:`Remove ${p?.name} and all their picks? This can't be undone.`,okText:'Remove',cancelText:'Keep them'});
+  if(!ok)return;
+  pool.participants=pool.participants.filter(p=>p.id!==id);
+  delete pool.picks[id];
+  if(myId===id){myId=null;await saveMe();}
+  await savePool();
+  renderAll();
+}
+
+/* ===================== DIALOGS (sandbox blocks prompt/confirm) ===================== */
+function uiAsk(opts){
+  return new Promise(res=>{
+    const ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;background:rgba(26,26,20,.45);display:flex;align-items:center;justify-content:center;z-index:10000;padding:16px';
+    ov.innerHTML=`<div style="background:white;border-radius:10px;max-width:340px;width:100%;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.25)">
+      <div class="panel-hdr">${opts.title}</div>
+      <div class="panel-body">
+        ${opts.body?`<div style="font-size:12px;color:var(--ink2);margin-bottom:10px;line-height:1.5">${opts.body}</div>`:''}
+        ${opts.input?`<input class="field-input" data-ask-input type="${opts.password?'password':opts.number?'number':'text'}" value="${opts.value??''}" ${opts.number?'min="0" step="1"':''} style="margin-bottom:10px">`:''}
+        <div style="display:flex;gap:8px">
+          <button class="btn-green" data-ask-ok style="flex:1">${opts.okText||'OK'}</button>
+          ${opts.hideCancel?'':`<button class="btn-ghost" data-ask-cancel style="flex:1">${opts.cancelText||'Cancel'}</button>`}
+        </div>
+      </div>
+    </div>`;
+    document.body.appendChild(ov);
+    const inp=ov.querySelector('[data-ask-input]');
+    if(inp)setTimeout(()=>inp.focus(),60);
+    const done=v=>{ov.remove();res(v);};
+    ov.querySelector('[data-ask-ok]').onclick=()=>done(opts.input?(inp.value||''):true);
+    const c=ov.querySelector('[data-ask-cancel]');
+    if(c)c.onclick=()=>done(null);
+    if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter')done(inp.value||'');});
+  });
+}
+
+/* ===================== ADMIN / PIN ===================== */
+async function verifyAdmin(){
+  if(adminMode)return true;
+  await loadPool();
+  if(!pool.adminPin){
+    const pin=await uiAsk({title:'Create organizer PIN',body:'No organizer PIN exists yet. Set one now — you\'ll use it to enter results and manage players. Don\'t lose it!',input:true,password:true,okText:'Set PIN'});
+    if(!pin)return false;
+    pool.adminPin=pin;
+    await savePool();
+    adminMode=true;return true;
+  }
+  const pin=await uiAsk({title:'Organizer PIN',body:'Enter the organizer PIN to unlock editing.',input:true,password:true,okText:'Unlock'});
+  if(pin===null)return false;
+  if(pin===pool.adminPin){adminMode=true;return true;}
+  await uiAsk({title:'Wrong PIN',body:'That PIN doesn\'t match. Only the pool organizer can edit results and players.',okText:'OK',hideCancel:true});
+  return false;
+}
+async function toggleAdmin(){
+  if(adminMode){adminMode=false;}
+  else{if(!await verifyAdmin())return;}
+  document.getElementById('admin-panel').style.display=adminMode?'':'none';
+  document.getElementById('admin-locked-note').style.display=adminMode?'none':'';
+  document.getElementById('admin-toggle-btn').textContent=adminMode?'🔓 Exit organizer tools':'🔐 Organizer tools';
+  renderParticipants();
+}
+async function toggleResultsEdit(){
+  if(adminMode){adminMode=false;}
+  else{if(!await verifyAdmin())return;}
+  document.getElementById('res-admin-bar').style.display=adminMode?'':'none';
+  document.getElementById('res-edit-btn').textContent=adminMode?'🔓 Done editing':'🔐 Organizer: enter results';
+  renderResults();
+}
+
+/* ===================== RESULTS ===================== */
+function renderResults(){
+  const el=document.getElementById('results-content');
+  const gsRes=pool.results.GS||{};
+  let html='';
+
+  // ORGANIZER: ROUND LOCK CONTROLS
+  if(adminMode){
+    html+=`<div class="res-round-card">
+      <div class="panel-hdr">Round locks — organizer override</div>
+      <div class="res-hint">Auto follows the schedule (locks at kickoff). Open and Lock override it for everyone — e.g. reopen group picks for a latecomer, then set back to Auto.</div>
+      <div style="padding:10px 14px">
+        ${ROUNDS.map(r=>{
+          const ov=(pool.lockOverrides||{})[r.key]||'auto';
+          const locked=isLocked(r.key);
+          const status=locked?'🔒 locked':'🟢 open';
+          const src=ov==='auto'?'auto':'set by you';
+          const seg=(val,lbl)=>`<button class="rwp${ov===val?' active':''}" onclick="setLockOverride('${r.key}','${val}')">${lbl}</button>`;
+          return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--cream2);flex-wrap:wrap">
+            <span style="font-size:12px;font-weight:600;min-width:110px">${r.label}</span>
+            <span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--ink3);min-width:90px">${status} · ${src}</span>
+            <span style="display:flex;gap:4px;margin-left:auto">${seg('auto','Auto')}${seg('unlocked','Open')}${seg('locked','Lock')}</span>
+          </div>`;
+        }).join('')}
+        <div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--ink3);margin-top:8px">Changes apply to everyone as soon as you save (or immediately on devices that refresh).</div>
+      </div>
+    </div>`;
+  }
+
+  // GROUP STAGE
+  html+=`<div class="section-lbl">Group stage — who finished top 2</div>
+  <div class="gs-grid" style="margin-bottom:18px">`+TEAMS_DATA.map(([g,...teams])=>{
+    const adv=gsRes[g]||[];
+    return `<div class="gs-card${adv.length===2?' complete':''}">
+      <div class="gs-hdr">Group ${g}<span class="gs-count">${adv.length?adv.length+'/2':'TBD'}</span></div>
+      <div class="gs-body">
+        ${teams.map(([f,n])=>{
+          const isAdv=adv.includes(n);
+          let cls='gs-team'+(isAdv?' correct':'');
+          if(adminMode)return `<button class="${cls}" onclick="toggleGroupResult('${g}','${n.replace(/'/g,"\\'")}')"><span class="pick-flag">${f}</span>${n}${isAdv?'<span class="gs-rank">✓ thru</span>':''}</button>`;
+          return `<div class="gs-team" style="cursor:default">${isAdv?'':'<span style="opacity:.4">'}<span class="pick-flag">${f}</span>${n}${isAdv?'<span class="gs-rank" style="color:var(--green-text)">✓ thru</span>':'</span>'}</div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('')+`</div>`;
+
+  // BEST THIRD-PLACE QUALIFIERS
+  const g3=pool.results.GS3||[];
+  const top2Set=Object.values(gsRes).flat();
+  const thirdCandidates=[...ALL_TEAMS].sort((a,b)=>a[1].localeCompare(b[1])).filter(([f,n])=>!top2Set.includes(n));
+  html+=`<div class="res-round-card">
+    <div class="panel-hdr">Best third-place qualifiers (${g3.length}/8)</div>
+    ${adminMode?`<div class="res-hint">Once all groups are final, tap the 8 third-place teams that qualified for the Round of 32 (any standings page lists them). This narrows everyone's knockout pick lists to teams still alive.</div>
+      <div class="res-chip-wrap">${thirdCandidates.map(([f,n])=>{
+        const isQ=g3.includes(n);
+        return `<button class="team-pick-btn${isQ?' correct':''}" onclick="toggleGS3('${n.replace(/'/g,"\\'")}')"><span class="pick-flag">${f}</span>${n}</button>`;
+      }).join('')}</div>`
+    :g3.length?`<div class="res-chip-wrap">${g3.map(n=>`<span class="adv-chip">${FLAG_MAP[n]||'🏳'} ${n}</span>`).join('')}</div>`
+    :`<div class="empty" style="padding:1rem">Decided when the groups wrap · Jun 27</div>`}
+  </div>`;
+
+  // KNOCKOUTS
+  KO_KEYS.forEach(k=>{
+    const r=ROUNDS.find(x=>x.key===k);
+    const winners=pool.results[k]||[];
+    html+=`<div class="res-round-card">
+      <div class="panel-hdr">${r.label} — ${k==='F'?'champion':'advanced'} (${winners.length}/${r.pickLimit})</div>
+      ${adminMode?`<div class="res-hint">Tap each team that ${k==='F'?'won the final':'won their match'} — ${r.pickLimit} total</div>
+        <div class="res-chip-wrap">${[...ALL_TEAMS].sort((a,b)=>a[1].localeCompare(b[1])).map(([f,n])=>{
+          const isW=winners.includes(n);
+          return `<button class="team-pick-btn${isW?' correct':''}" onclick="toggleKOResult('${k}','${n.replace(/'/g,"\\'")}')"><span class="pick-flag">${f}</span>${n}</button>`;
+        }).join('')}</div>`
+      :winners.length?`<div class="res-chip-wrap">${winners.map(n=>`<span class="adv-chip">${FLAG_MAP[n]||'🏳'} ${n}</span>`).join('')}</div>`
+      :`<div class="empty" style="padding:1rem">Not played yet · ${r.dates}</div>`}
+    </div>`;
+  });
+
+  if(adminMode)html+=`<div class="row" style="margin-top:6px"><button class="btn-green" style="width:auto;padding:9px 24px" onclick="saveResults()">Save results</button><span class="upd-txt" id="res-saved-msg"></span></div>`;
+  el.innerHTML=html;
+}
+async function setLockOverride(roundKey,val){
+  if(!pool.lockOverrides)pool.lockOverrides={};
+  if(val==='auto')delete pool.lockOverrides[roundKey];
+  else pool.lockOverrides[roundKey]=val;
+  await savePool();
+  renderResults();renderRoundTabs();renderPicksContent();
+}
+
+function toggleGS3(team){
+  if(!Array.isArray(pool.results.GS3))pool.results.GS3=[];
+  const arr=pool.results.GS3;
+  const idx=arr.indexOf(team);
+  if(idx>=0)arr.splice(idx,1);
+  else{if(arr.length>=8)return;arr.push(team);}
+  renderResults();
+}
+function toggleGroupResult(g,team){
+  if(!pool.results.GS)pool.results.GS={};
+  if(!pool.results.GS[g])pool.results.GS[g]=[];
+  const arr=pool.results.GS[g];
+  const idx=arr.indexOf(team);
+  if(idx>=0)arr.splice(idx,1);
+  else{
+    if(arr.length>=2)return;
+    arr.push(team);
+    // a team marked top-2 can't also be a third-place qualifier
+    if(Array.isArray(pool.results.GS3)){const i=pool.results.GS3.indexOf(team);if(i>=0)pool.results.GS3.splice(i,1);}
+  }
+  renderResults();
+}
+function toggleKOResult(k,team){
+  const r=ROUNDS.find(x=>x.key===k);
+  if(!pool.results[k])pool.results[k]=[];
+  const arr=pool.results[k];
+  const idx=arr.indexOf(team);
+  if(idx>=0)arr.splice(idx,1);
+  else{if(arr.length>=r.pickLimit)return;arr.push(team);}
+  renderResults();
+}
+async function saveResults(){
+  const msg=document.getElementById('res-saved-msg');
+  if(msg)msg.innerHTML='<span class="spinner"></span>Saving…';
+  await savePool();
+  renderLeaderboard();renderBracket();renderPicksContent();
+  if(msg){msg.textContent='Results saved ✓';setTimeout(()=>{if(msg)msg.textContent='';},3000);}
+}
+
+/* ===================== AI SYNC ===================== */
+async function aiSync(){
+  const btn=document.getElementById('ai-sync-btn');
+  const msg=document.getElementById('ai-sync-msg');
+  btn.disabled=true;
+  msg.innerHTML='<span class="spinner"></span>Searching the web for results…';
+  const teamList=ALL_TEAMS.map(([f,n])=>n).join(', ');
+  const groupList=TEAMS_DATA.map(([g,...ts])=>`Group ${g}: ${ts.map(t=>t[1]).join(', ')}`).join('\n');
+  try{
+    const response=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:1000,
+        tools:[{type:"web_search_20250305",name:"web_search"}],
+        messages:[{role:"user",content:
+`Today is ${new Date().toDateString()}. Search the web for FIFA World Cup 2026 results so far (tournament runs Jun 11 - Jul 19, 2026).
+
+I need ONLY completed, factual results. The groups are:
+${groupList}
+
+Respond with ONLY a JSON object, no preamble, no markdown fences:
+{
+ "GS": {"A": ["Team1","Team2"], ...},   // ONLY groups where final standings are decided; the 2 teams that finished 1st and 2nd. Omit undecided groups entirely.
+ "GS3": ["..."],  // the 8 best third-place teams that qualified for the Round of 32, ONLY once all groups are final. Empty array otherwise.
+ "R32": ["..."],  // teams that WON a completed Round of 32 match. Empty array if none played.
+ "R16": ["..."], "QF": ["..."], "SF": ["..."], "F": ["..."]  // F = the champion only
+}
+Use EXACTLY these team names: ${teamList}. If nothing has been played yet, return empty objects/arrays.`}]
+      })
+    });
+    const data=await response.json();
+    const text=(data.content||[]).filter(i=>i.type==='text').map(i=>i.text).join('\n');
+    const clean=text.replace(/```json|```/g,'').trim();
+    const jsonMatch=clean.match(/\{[\s\S]*\}/);
+    if(!jsonMatch)throw new Error('no JSON in response');
+    const parsed=JSON.parse(jsonMatch[0]);
+    const validName=n=>ALL_TEAMS.some(([f,t])=>t===n);
+    if(Array.isArray(parsed.GS3)){
+      const t3=parsed.GS3.filter(validName).slice(0,8);
+      if(t3.length===8)pool.results.GS3=t3;
+    }
+    if(parsed.GS)Object.keys(parsed.GS).forEach(g=>{
+      const teams=(parsed.GS[g]||[]).filter(validName).filter(n=>GROUP_OF[n]===g);
+      if(teams.length===2)pool.results.GS[g]=teams;
+    });
+    KO_KEYS.forEach(k=>{
+      const r=ROUNDS.find(x=>x.key===k);
+      if(Array.isArray(parsed[k])){
+        const w=parsed[k].filter(validName).slice(0,r.pickLimit);
+        if(w.length)pool.results[k]=w;
+      }
+    });
+    await savePool();
+    renderResults();renderLeaderboard();renderBracket();
+    msg.textContent='Synced — review below ✓';
+  }catch(e){
+    msg.textContent='Sync didn\'t work — enter results by tapping teams below.';
+  }
+  btn.disabled=false;
+  setTimeout(()=>{msg.textContent='';},6000);
+}
+
+/* ===================== BRACKET ===================== */
+function renderBracket(){
+  const board=document.getElementById('bracket-board');
+  board.innerHTML='';
+  const H=660;
+  BLANK_ROUNDS.forEach((round,ri)=>{
+    const key=KO_KEYS[ri];
+    const winners=pool.results[key]||[];
+    const prevWinners=ri===0?null:(pool.results[KO_KEYS[ri-1]]||[]);
+    const col=document.createElement('div');col.className='r-col';
+    col.innerHTML=`<div class="r-hdr">${round.label}</div><div class="r-date">${round.date}</div>`;
+    const md=document.createElement('div');md.className='r-matches';
+    const slotH=Math.floor(H/round.slots.length);
+    round.slots.forEach((s,i)=>{
+      const wrap=document.createElement('div');wrap.className='m-wrap';wrap.style.height=slotH+'px';
+      if(ri===0){
+        const r32=BLANK_R32[i];
+        const mk=t=>{
+          const isW=t[0]!=='?'&&winners.includes(t[1]);
+          return `<div class="m-team${isW?' winner':''}">${t[0]!=='?'?`<span style="font-size:12px">${t[0]}</span>`:''}<span style="${t[0]==='?'?'font-style:italic;color:var(--ink3)':''}">${t[1]}</span>${isW?'<span class="msc">✓</span>':''}</div>`;
+        };
+        wrap.innerHTML=`<div class="m-box">${mk(r32.t1)}${mk(r32.t2)}
+          <div class="m-venue"><div class="m-vdot" style="background:${r32.cc}"></div>${r32.flag} ${r32.venue} · ${r32.date}</div>
+        </div>`;
+      }else{
+        // pairings unknown until played — show entrants (prev winners) as TBD slots, mark winners
+        const w=winners[i];
+        wrap.innerHTML=`<div class="m-box">
+          <div class="m-team${w?' winner':''}">${w?`<span style="font-size:12px">${FLAG_MAP[w]||'🏳'}</span>${w}<span class="msc">✓</span>`:`<span style="font-style:italic;opacity:.5">TBD</span>`}</div>
+          <div class="m-team"><span style="font-style:italic;opacity:.5">${prevWinners&&prevWinners.length?'from '+BLANK_ROUNDS[ri-1].label:'TBD'}</span></div>
+          <div class="m-venue"><div class="m-vdot" style="background:${s.cc}"></div>${s.flag} ${s.venue}</div>
+        </div>`;
+      }
+      md.appendChild(wrap);
+    });
+    col.appendChild(md);board.appendChild(col);
+  });
+  const champ=(pool.results.F||[])[0];
+  const cc=document.createElement('div');cc.className='champ-col';
+  cc.innerHTML=champ
+    ?`<div class="champ-box"><span class="champ-trophy">🏆</span><span class="champ-flag">${FLAG_MAP[champ]||'🏆'}</span><div class="champ-name">${champ}</div><div class="champ-sub">World Champions</div></div>`
+    :`<div class="champ-box"><span class="champ-trophy">🏆</span><div class="champ-sub">Champion</div><div class="champ-sub" style="margin-top:2px">Jul 19 · MetLife</div></div>`;
+  board.appendChild(cc);
+  document.getElementById('bracket-msg').textContent=champ?'Final bracket':'Winners light up as results are entered';
+}
+
+/* ===================== CSV / TABS / GROUPS ===================== */
+function exportCSV(){
+  const rows=[['Name','Entry Fee',...ROUNDS.map(r=>r.short+' extra'),'Total paid',...ROUNDS.map(r=>r.short+' pts'),'Total pts']];
+  pool.participants.forEach(p=>{
+    const{total,breakdown}=calcPoints(p.id);
+    const roundWagers=ROUNDS.map(r=>pool.picks[p.id]?.[r.key+'_wager']||0);
+    const totalPaid=(p.wager||0)+roundWagers.reduce((s,w)=>s+w,0);
+    rows.push([p.name,p.wager||0,...roundWagers,totalPaid,...ROUNDS.map(r=>breakdown[r.key]??0),total]);
+  });
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='wc2026_pool.csv';a.click();
+}
+
+function gotoTab(name,el){
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');
+  ['leaderboard','picks','participants','bracket','results','groups'].forEach(t=>{document.getElementById('tab-'+t).style.display=t===name?'':'none';});
+  if(name==='picks')renderPicksContent();
+}
+function gotoTabByName(name){
+  const btns=[...document.querySelectorAll('.nav-btn')];
+  const map={leaderboard:0,picks:1,participants:2,bracket:3,results:4,groups:5};
+  gotoTab(name,btns[map[name]]);
+}
+
+function initGroups(){
+  document.getElementById('groups-grid').innerHTML=TEAMS_DATA.map(([g,...teams])=>`
+    <div style="background:white;border-radius:var(--r);border:1px solid var(--cream3);overflow:hidden">
+      <div style="background:var(--grass);color:var(--gold2);padding:7px 12px;font-size:10px;font-weight:700;font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase">Group ${g}</div>
+      ${teams.map(([f,n,r],i)=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 12px;font-size:12px;${i<teams.length-1?'border-bottom:1px solid var(--cream2)':''}">
+          <span style="font-size:15px">${f}</span>
+          <span style="flex:1;font-weight:500">${n}</span>
+          <span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--ink3)">#${r}</span>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+/* ===================== SETUP SCREEN (self-hosted first run) ===================== */
+function renderSetup(){
+  document.querySelector('.nav-bar').style.display='none';
+  document.querySelector('.main').innerHTML=`
+    <div class="join-card" style="max-width:520px">
+      <div class="join-hero">
+        <span class="ball">🛠️</span>
+        <h2>Organizer setup</h2>
+        <p>ONE-TIME · TAKES ~5 MINUTES · PLAYERS NEVER SEE THIS</p>
+      </div>
+      <div class="panel-body">
+        <div style="font-size:12px;color:var(--ink2);line-height:1.6;margin-bottom:14px">
+          This page needs one shared place to keep everyone's picks. We'll use a free JSONBin:
+          <ol style="margin:8px 0 0 18px;line-height:1.8">
+            <li>Go to <strong>jsonbin.io</strong> → create a free account</li>
+            <li>Click <strong>Create Bin</strong>, type <code style="background:var(--cream2);padding:1px 5px;border-radius:3px">{"init":true}</code> as the content, save it</li>
+            <li>Copy the <strong>Bin ID</strong> (in the bin's URL / header)</li>
+            <li>Go to <strong>API Keys</strong> → copy your <strong>Master Key</strong></li>
+          </ol>
+        </div>
+        <div class="field-row">
+          <label class="field-lbl">Bin ID</label>
+          <input class="field-input" type="text" id="setup-bin" placeholder="e.g. 68455a1f8960c979a5a91234">
+        </div>
+        <div class="field-row">
+          <label class="field-lbl">Master Key</label>
+          <input class="field-input" type="text" id="setup-key" placeholder="$2a$10$...">
+        </div>
+        <button class="btn-green" onclick="finishSetup()">Connect &amp; create my pool link</button>
+        <div id="setup-msg"></div>
+      </div>
+    </div>`;
+}
+async function finishSetup(){
+  const bin=document.getElementById('setup-bin').value.trim();
+  const key=document.getElementById('setup-key').value.trim();
+  const msg=document.getElementById('setup-msg');
+  if(!bin||!key){msg.innerHTML='<div class="msg msg-warn">Both fields are needed.</div>';return;}
+  msg.innerHTML='<div class="msg msg-warn"><span class="spinner"></span>Testing connection…</div>';
+  location.hash='bin='+encodeURIComponent(bin)+'&key='+encodeURIComponent(key);
+  try{
+    await backendSet(JSON.stringify(pool)); // initialize bin with empty pool
+    const link=location.origin+location.pathname+location.hash;
+    msg.innerHTML=`<div class="msg msg-ok">Connected! This is the link to send everyone:</div>
+      <input class="field-input" value="${link}" readonly onclick="this.select()" style="margin-top:8px;font-size:11px;font-family:'DM Mono',monospace">
+      <button class="btn-green" style="margin-top:8px" onclick="navigator.clipboard&&navigator.clipboard.writeText('${link}');location.reload()">Copy link &amp; open the pool</button>`;
+  }catch(e){
+    location.hash='';
+    msg.innerHTML='<div class="msg msg-err">Could not connect — double-check the Bin ID and Master Key, then try again.</div>';
+  }
+}
+
+/* ===================== BOOT ===================== */
+(async function boot(){
+  initGroups();
+  if(!backendReady()){renderSetup();return;}
+  if(!IN_ARTIFACT){const p=document.getElementById('ai-sync-panel');if(p)p.style.display='none';}
+  await loadPool();
+  await loadMe();
+  renderAll();
+  // refresh when the tab regains focus, plus a gentle background poll
+  document.addEventListener('visibilitychange',async()=>{
+    if(document.visibilityState==='visible'){await loadPool();renderLeaderboard();renderParticipants();renderResults();renderBracket();}
+  });
+  setInterval(async()=>{
+    if(document.visibilityState!=='visible')return;
+    await loadPool();renderLeaderboard();renderParticipants();renderResults();renderBracket();
+  },IN_ARTIFACT?60000:300000);
+})();
+
+/* ===================== EASTER EGG: FLEEING BALLS ===================== */
+(function(){
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const BALL='⚽',COUNT=18,FLEE_RADIUS=130,FLEE_FORCE=7,FRICTION=0.90,BOUNCE=0.55,GRAVITY=0.20,SIZE=22,RADIUS=SIZE/2,MIN_SPEED=0.08,NUDGE=0.4;
+  let mouse={x:-999,y:-999},balls=[];
+  const canvas=document.createElement('canvas');
+  canvas.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;';
+  document.body.appendChild(canvas);
+  const ctx=canvas.getContext('2d');
+  function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+  resize();
+  window.addEventListener('resize',()=>{resize();balls.forEach(b=>{b.x=Math.min(b.x,canvas.width-SIZE);b.y=Math.min(b.y,canvas.height-SIZE);});});
+  function makeBall(i){
+    const cols=Math.ceil(Math.sqrt(COUNT)),col=i%cols,row=Math.floor(i/cols);
+    return{x:(col+0.5)*(canvas.width/cols),y:-SIZE*(row+1)*2.5,vx:(Math.random()-0.5)*2,vy:Math.random()*2,spin:(Math.random()-0.5)*0.1,angle:Math.random()*Math.PI*2};
+  }
+  for(let i=0;i<COUNT;i++)balls.push(makeBall(i));
+  document.addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
+  document.addEventListener('mouseleave',()=>{mouse.x=-999;mouse.y=-999;});
+  function collideBalls(){
+    for(let i=0;i<balls.length;i++)for(let j=i+1;j<balls.length;j++){
+      const a=balls[i],b=balls[j],dx=b.x-a.x,dy=b.y-a.y,dist=Math.sqrt(dx*dx+dy*dy),minDist=SIZE*0.95;
+      if(dist<minDist&&dist>0){
+        const nx=dx/dist,ny=dy/dist,overlap=(minDist-dist)/2;
+        a.x-=nx*overlap;a.y-=ny*overlap;b.x+=nx*overlap;b.y+=ny*overlap;
+        const dvx=a.vx-b.vx,dvy=a.vy-b.vy,dot=dvx*nx+dvy*ny;
+        if(dot>0){const impulse=dot*0.6;a.vx-=impulse*nx;a.vy-=impulse*ny;b.vx+=impulse*nx;b.vy+=impulse*ny;}
+      }
+    }
+  }
+  function tick(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.font=SIZE+'px serif';ctx.textBaseline='top';
+    collideBalls();
+    balls.forEach(b=>{
+      const dx=b.x-mouse.x,dy=b.y-mouse.y,dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<FLEE_RADIUS&&dist>0){const force=FLEE_FORCE*(1-dist/FLEE_RADIUS);b.vx+=dx/dist*force;b.vy+=dy/dist*force;}
+      b.vy+=GRAVITY;b.vx*=FRICTION;b.vy*=FRICTION;b.angle+=b.spin;b.spin*=0.995;
+      const speed=Math.sqrt(b.vx*b.vx+b.vy*b.vy);
+      if(speed<MIN_SPEED&&speed>0){b.vx+=(Math.random()-0.5)*NUDGE;b.vy-=Math.random()*NUDGE*0.5;}
+      b.x+=b.vx;b.y+=b.vy;
+      const floor=canvas.height-SIZE;
+      if(b.y>floor){b.y=floor;b.vy*=-BOUNCE;b.vx*=0.88;b.spin=(b.vx/SIZE)*0.6;if(Math.abs(b.vy)<0.5)b.vy=0;}
+      if(b.y<0){b.y=0;b.vy*=-BOUNCE;}
+      if(b.x<0){b.x=0;b.vx*=-BOUNCE;}
+      if(b.x>canvas.width-SIZE){b.x=canvas.width-SIZE;b.vx*=-BOUNCE;}
+      ctx.save();ctx.translate(b.x+RADIUS,b.y+RADIUS);ctx.rotate(b.angle);ctx.globalAlpha=0.78;ctx.fillText(BALL,-RADIUS,-RADIUS);ctx.restore();
+    });
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+</script>
+</body>
+</html>
